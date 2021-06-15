@@ -7,13 +7,15 @@ import { PostCard } from '../../components/PostCard';
 import {loadPosts} from '../../utils/load-posts';
 import {Button} from '../../components/Button'
 import { Posts } from '../../components/Posts';
+import { TextInput } from '../../components/TextInput';
 
 class Home extends Component{
   state = {
     posts:[],
     allPosts:[],
     page:0,
-    postporPage:50
+    postporPage:2,
+    searchValue: ''
   }
 
   
@@ -45,21 +47,60 @@ loadMorePosts = () =>{
  this.setState({posts,page:nextPage});
 }
 
+handlechange = (e) =>{
+  const {value} = e.target;
+  this.setState({searchValue:value});
+
+
+
+}
 
 render(){
-  const {posts , page , postsperPage, allPosts} = this.state;
+  const {posts , page , postsperPage, allPosts ,searchValue} = this.state;
   const {noMorePosts} =  page + postsperPage >= allPosts.length;
 
-  return (
-<section className="container">
-    <Posts posts={posts}/>
-    <div className="button-container">
-    <Button
+  const filteredPost = !!searchValue ?
+    allPosts.filter(post => {
+      return post.title.toLowerCase().includes(
+        searchValue.toLocaleLowerCase()
+      );
+    })
+    :
+    posts;
 
-      text="Carregar Mais posts"
-      onClick={this.loadMorePosts}
-      disabled={noMorePosts} 
-     />
+  return (
+          <section className="container">
+            <div className="search-container">
+          {!!searchValue && (
+              <>
+              <h1> Seach Value: {searchValue}<br/><br/></h1>
+              </>
+            )}
+        </div>
+
+<TextInput searchValue={searchValue} handlechange={this.handlechange} />
+  <br/>
+  <br/>
+  {filteredPost.length > 0 &&(
+    <Posts posts={filteredPost}/>
+    
+  )}
+
+{filteredPost.length === 0 && (
+  <p>Não existem Posts =(</p>
+    
+  )}
+
+    <div className="button-container">
+          {!searchValue &&(
+            <Button
+                text="Carregar Mais posts"
+                onClick={this.loadMorePosts}
+                disabled={noMorePosts} 
+               />
+
+            )}
+  
     </div>
   
    
